@@ -6,53 +6,66 @@ const AuthForm = () => {
   const emailInputRef = useRef("");
   const passwordInputRef = useRef("");
   const [isLogin, setIsLogin] = useState(true);
-  const [isLoading,setIsLoading]=useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
 
-  const submitHandler =  (event) => {
+  const submitHandler = async (event) => {
+
+
     event.preventDefault();
 
     const email = emailInputRef.current.value;
     const password = passwordInputRef.current.value;
-    
-   
-
-    setIsLoading(true)
+     console.log(email)
+    let url;
+    setIsLoading(true);
     if (isLogin) {
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBJDKJsw6vGx5JASyTEwuicIUqs-FV-7_o";
     } else {
-         
-        fetch(
-        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBJDKJsw6vGx5JASyTEwuicIUqs-FV-7_o',
-        {
-          method: "POST",
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            returnSecureToken: true,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      ).then(res=>{
-        setIsLoading(false)
-        if (res.ok) {
-        } else {
-           return res.json().then((data)=>{
-            
-            let errorMessage='Authentication Failed!'
-            if(data && data.error && data.error.message){
-              errorMessage=data.error.message
-            }
-            alert(errorMessage)
-           })
-          
-        }
-      })
-      
+      url =
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBJDKJsw6vGx5JASyTEwuicIUqs-FV-7_o";
     }
+
+   let res= await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        returnSecureToken: true,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      
+      let errorMessage
+        setIsLoading(false);
+        if (res) {
+          let data=await res.json();
+          console.log(data);
+          localStorage.setItem("token",JSON.stringify(data.idToken))
+      
+        } else {
+           let data2= res.json()
+             errorMessage = "Authentication Failed!";
+            // if (data && data.error && data.error.message) {
+            //   errorMessage = data.error.message;
+            // }
+           // throw new Error(errorMessage);
+            alert(errorMessage);
+           
+        
+        }
+    
+      
+        
+      
+      
+       
+     
   };
 
   return (
@@ -60,19 +73,21 @@ const AuthForm = () => {
       <h1>{isLogin ? "Login" : "Sign Up"}</h1>
       <form onSubmit={submitHandler}>
         <div className={classes.control}>
-          <label htmlFor="email" ref={emailInputRef}>
+          <label htmlFor="email" >
             Your Email
           </label>
-          <input type="email" id="email" required />
+          <input type="email" id="email" required ref={emailInputRef} />
         </div>
         <div className={classes.control}>
-          <label htmlFor="password" ref={passwordInputRef}>
+          <label htmlFor="password" >
             Your Password
           </label>
-          <input type="password" id="password" required />
+          <input type="password" id="password" required ref={passwordInputRef}/>
         </div>
         <div className={classes.actions}>
-          {!isLoading &&<button>{isLogin ? "Login" : "create account"}</button>}
+          {!isLoading && (
+            <button>{isLogin ? "Login" : "create account"}</button>
+          )}
           {isLoading && <p>Sending Request...</p>}
           <button
             type="button"
