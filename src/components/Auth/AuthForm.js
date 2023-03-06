@@ -49,6 +49,7 @@ const AuthForm = () => {
         if (res.ok) {
           let data=await res.json();
             ctx.login(data.idToken)
+           
             navigate('/profile')
       
         } else {
