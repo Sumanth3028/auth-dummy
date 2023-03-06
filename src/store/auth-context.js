@@ -18,6 +18,7 @@ export const AuthContextProvider=(props)=>{
     const loginHandler=(token)=>{
         setToken(token)
         localStorage.setItem("token",token)
+        setTimeout(()=>{ localStorage.removeItem("token")},5000)
     }
 
     const logOutHandler=()=>{
