@@ -1,5 +1,5 @@
 import { useState, useRef ,useContext} from "react";
-
+import { Navigate, useNavigate } from "react-router-dom";
 import classes from "./AuthForm.module.css";
 import AuthContext from "../../store/auth-context";
 
@@ -8,7 +8,7 @@ const AuthForm = () => {
   const passwordInputRef = useRef("");
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
+  const navigate=useNavigate()
   const ctx=useContext(AuthContext)
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -46,18 +46,20 @@ const AuthForm = () => {
       
       let errorMessage
         setIsLoading(false);
-        if (res) {
+        if (res.ok) {
           let data=await res.json();
             ctx.login(data.idToken)
+            navigate('/profile')
       
         } else {
-           let data2= res.json()
-             errorMessage = "Authentication Failed!";
-            // if (data && data.error && data.error.message) {
-            //   errorMessage = data.error.message;
-            // }
-           // throw new Error(errorMessage);
-            alert(errorMessage);
+           let data2= await res.json()
+              errorMessage = "Authentication Failed!";
+            if (data2 && data2.error && data2.error.message) {
+              errorMessage = data2.error.message;
+            }
+            alert(errorMessage)
+           throw new Error(errorMessage);
+            
            
         
         }
